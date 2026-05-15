@@ -1,0 +1,27 @@
+{
+  "name": "cafe-koi-pos",
+  "version": "1.0.0",
+  "description": "Cafe Koi Point-of-Sale backend (Fastify + Prisma)",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "migrate": "npx prisma migrate dev",
+    "migrate:deploy": "npx prisma migrate deploy",
+    "generate": "npx prisma generate",
+    "studio": "npx prisma studio"
+  },
+  "dependencies": {
+    "@fastify/cors": "9.0.1",
+    "@prisma/client": "5.19.1",
+    "dotenv": "16.4.5",
+    "fastify": "4.28.1"
+  },
+  "devDependencies": {
+    "prisma": "5.19.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
