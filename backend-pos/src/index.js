@@ -1,10 +1,7 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { PrismaClient } from "@prisma/client";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
 const prisma = new PrismaClient();
 
 const app = Fastify({
@@ -19,6 +16,15 @@ await app.register(cors, {
     "http://localhost:5173",
     "http://127.0.0.1:5173",
   ],
+});
+
+// ─── Global Error Handler ────────────────────────────────────────────────────
+app.setErrorHandler((error, request, reply) => {
+  if (error.code === "P2025") {
+    return reply.code(404).send({ error: "Record not found" });
+  }
+  app.log.error(error);
+  return reply.code(500).send({ error: "Internal server error" });
 });
 
 // ─── Health ─────────────────────────────────────────────────────────────────
@@ -36,13 +42,13 @@ app.get("/api/products/:id", async (request, reply) => {
   const product = await prisma.product.findUnique({
     where: { id: Number(request.params.id) },
   });
-  if (!product) return reply.status(404).send({ error: "Product not found" });
+  if (!product) return reply.code(404).send({ error: "Product not found" });
   return product;
 });
 
 app.post("/api/products", async (request, reply) => {
   const product = await prisma.product.create({ data: request.body });
-  return reply.status(201).send(product);
+  return reply.code(201).send(product);
 });
 
 // ─── Orders ─────────────────────────────────────────────────────────────────
@@ -58,7 +64,7 @@ app.get("/api/orders/:id", async (request, reply) => {
     where: { id: Number(request.params.id) },
     include: { items: { include: { product: true } } },
   });
-  if (!order) return reply.status(404).send({ error: "Order not found" });
+  if (!order) return reply.code(404).send({ error: "Order not found" });
   return order;
 });
 
@@ -99,7 +105,7 @@ app.post("/api/orders", async (request, reply) => {
     });
   });
 
-  return reply.status(201).send(order);
+  return reply.code(201).send(order);
 });
 
 app.patch("/api/orders/:id/status", async (request, reply) => {

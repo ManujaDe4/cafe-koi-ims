@@ -7,7 +7,10 @@ env = environ.Env(
     DEBUG=(bool, True),
     DJANGO_ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1"]),
 )
-environ.Env.read_env(BASE_DIR.parent / ".env")
+# Read .env from repo root for local dev; in Docker, vars are injected via env_file
+_env_file = BASE_DIR.parent / ".env"
+if _env_file.exists():
+    environ.Env.read_env(_env_file)
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env("DJANGO_DEBUG")

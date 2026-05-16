@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem \"c:\\\\Users\\\\msi\\\\Documents\\\\GitHub\\\\cafe-koi-ims\\\\backend-inventory\\\\inventory\\\\migrations\" -Force)",
+      "Bash(Test-Path \"c:\\\\Users\\\\msi\\\\Documents\\\\GitHub\\\\cafe-koi-ims\\\\backend-pos\\\\package-lock.json\" -PathType Leaf)"
+    ]
+  }
+}

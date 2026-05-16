@@ -14,7 +14,10 @@ services:
     build:
       context: ./backend-inventory
       dockerfile: Dockerfile
-    # CHANGED: Switched to runserver for hot-reloading code changes in dev
+    # FIX: Bypasses WSL2 internal network bridge DNS bugs by pointing directly to public DNS
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     command: >
       sh -c "python manage.py migrate --noinput &&
              python manage.py runserver 0.0.0.0:8000"
@@ -33,6 +36,10 @@ services:
     build:
       context: ./backend-inventory
       dockerfile: Dockerfile
+    # FIX: Ensures background tasks can also resolve external email/notification services or Supabase
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     command: celery -A core worker --loglevel=info
     volumes:
       - ./backend-inventory:/app
@@ -47,7 +54,10 @@ services:
     build:
       context: ./backend-pos
       dockerfile: Dockerfile
-    # CHANGED: Generate prisma client instead of running duplicate migrations; use watch mode
+    # FIX: Prevents Developer 2 from hitting host lookup failures when their Node app queries Supabase
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     command: sh -c "npx prisma generate && node --watch src/index.js"
     volumes:
       - ./backend-pos:/app
@@ -62,7 +72,6 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    # CHANGED: Added explicit command with --host flag so you can access Vite from your browser
     command: npm run dev -- --host
     volumes:
       - ./frontend:/app
