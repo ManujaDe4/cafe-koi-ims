@@ -5,6 +5,7 @@ from .views import (
     RecipeViewSet,
     RecipeIngredientViewSet,
     CakeBatchViewSet,
+    BakeView,
 )
 
 router = DefaultRouter()
@@ -15,4 +16,5 @@ router.register(r"cake-batches",       CakeBatchViewSet,        basename="cake-b
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("production/bake/", BakeView.as_view(), name="production-bake"),
 ]
