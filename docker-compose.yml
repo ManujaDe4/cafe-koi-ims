@@ -14,13 +14,11 @@ services:
     build:
       context: ./backend-inventory
       dockerfile: Dockerfile
-    # FIX: Bypasses WSL2 internal network bridge DNS bugs by pointing directly to public DNS
+    # FORCE local container network routing to ignore broken WSL adapters
     dns:
       - 8.8.8.8
       - 1.1.1.1
-    command: >
-      sh -c "python manage.py migrate --noinput &&
-             python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend-inventory:/app
     ports:
