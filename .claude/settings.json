@@ -5,7 +5,8 @@
       "Bash(Test-Path \"c:\\\\Users\\\\msi\\\\Documents\\\\GitHub\\\\cafe-koi-ims\\\\backend-pos\\\\package-lock.json\" -PathType Leaf)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\msi\\\\Documents\\\\GitHub\\\\cafe-koi-ims\\\\backend-inventory\\\\inventory\\\\migrations\" -File)",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(awk '{print $NF}')"
+      "Bash(awk '{print $NF}')",
+      "Bash(git ls-files *)"
     ]
   }
 }
