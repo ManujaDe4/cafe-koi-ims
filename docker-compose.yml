@@ -1,23 +1,4 @@
-version: "3.9"
-
 services:
-  db:
-    image: postgres:16
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -33,10 +14,10 @@ services:
     build:
       context: ./backend-inventory
       dockerfile: Dockerfile
+    # CHANGED: Switched to runserver for hot-reloading code changes in dev
     command: >
       sh -c "python manage.py migrate --noinput &&
-             python manage.py collectstatic --noinput &&
-             gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 2"
+             python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend-inventory:/app
     ports:
@@ -44,8 +25,6 @@ services:
     env_file:
       - .env
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
     restart: unless-stopped
@@ -60,8 +39,6 @@ services:
     env_file:
       - .env
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
     restart: unless-stopped
@@ -70,7 +47,8 @@ services:
     build:
       context: ./backend-pos
       dockerfile: Dockerfile
-    command: sh -c "npx prisma migrate deploy && node src/index.js"
+    # CHANGED: Generate prisma client instead of running duplicate migrations; use watch mode
+    command: sh -c "npx prisma generate && node --watch src/index.js"
     volumes:
       - ./backend-pos:/app
       - /app/node_modules
@@ -78,15 +56,14 @@ services:
       - "3000:3000"
     env_file:
       - .env
-    depends_on:
-      db:
-        condition: service_healthy
     restart: unless-stopped
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    # CHANGED: Added explicit command with --host flag so you can access Vite from your browser
+    command: npm run dev -- --host
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -98,6 +75,3 @@ services:
       - backend-inventory
       - backend-pos
     restart: unless-stopped
-
-volumes:
-  postgres_data:
